@@ -337,12 +337,12 @@ func (s *KVStore) getTimestampWithRetry(bo *Backoffer, txnScope string) (uint64,
 
 	for {
 		startTS, err := s.oracle.GetTimestamp(bo.GetCtx(), &oracle.Option{TxnScope: txnScope})
-		// mockGetTSErrorInRetry should wait MockCommitErrorOnce first, then will run into retry() logic.
+		// mockGetTSErrorInRetry should wait mockCommitError first, then will run into retry() logic.
 		// Then mockGetTSErrorInRetry will return retryable error when first retry.
 		// Before PR #8743, we don't cleanup txn after meet error such as error like: PD server timeout
 		// This may cause duplicate data to be written.
 		if val, e := util.EvalFailpoint("mockGetTSErrorInRetry"); e == nil && val.(bool) {
-			if _, e := util.EvalFailpoint("mockCommitErrorOpt"); e != nil {
+			if val2, e := util.EvalFailpoint("mockCommitError"); e == nil && !val2.(bool) {
 				err = tikverr.NewErrPDServerTimeout("mock PD timeout")
 			}
 		}

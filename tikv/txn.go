@@ -47,7 +47,6 @@ import (
 	"github.com/dgryski/go-farm"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pingcap/errors"
-	"github.com/pingcap/failpoint"
 	"github.com/pingcap/kvproto/pkg/kvrpcpb"
 	tikverr "github.com/tikv/client-go/v2/error"
 	"github.com/tikv/client-go/v2/internal/logutil"
@@ -333,10 +332,7 @@ func (txn *KVTxn) Commit(ctx context.Context) error {
 	defer txn.close()
 
 	if val, err := util.EvalFailpoint("mockCommitError"); err == nil && val.(bool) {
-		if _, err := util.EvalFailpoint("mockCommitErrorOpt"); err == nil {
-			failpoint.Disable("tikvclient/mockCommitErrorOpt")
-			return errors.New("mock commit error")
-		}
+		return errors.New("mock commit error")
 	}
 
 	start := time.Now()

@@ -35,6 +35,7 @@
 package metrics
 
 import (
+	gprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 )
@@ -729,6 +730,7 @@ func InitMetricsWithConstLabels(namespace, subsystem string, constLabels prometh
 // RegisterMetrics registers all metrics variables.
 // Note: to change default namespace and subsystem name, call `InitMetrics` before registering.
 func RegisterMetrics() {
+	prometheus.MustRegister(gprom.NewClientMetrics())
 	prometheus.MustRegister(TiKVTxnCmdHistogram)
 	prometheus.MustRegister(TiKVBackoffHistogram)
 	prometheus.MustRegister(TiKVSendReqHistogram)
